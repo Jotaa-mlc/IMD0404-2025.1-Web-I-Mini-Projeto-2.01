@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
 </head>
-<body>
+<body onload="renderTasks()">
     <main>
         <section id="todo-list">
             <div id="header">
@@ -16,33 +16,15 @@
             </div>
             <div id="order">
                 <label for="order-select">Ordenar por:</label>
-                <select id="order-select" class="form-select">
+                <select id="order-select" class="form-select" aria-label="Ordenar tarefas">
                     <option value="prioridade">Prioridade</option>
                     <option value="dt-criacao">Data da Criação</option>
-                    <option value="dt-task">Data da Tarefa</option>
+                    <option value="dt-tarefa">Data da Tarefa</option>
                     <option value="alfabetica">Alfabética</option>
                 </select>
-                
             </div>
-            <ul id="tasks-list">
-                <div class="task">
-                    <h3>Titulo</h3>
-                    <p>Descrição</p>
-                    <div class="task-footer">
-                        <button class="btn btn-light"><img src="img/edit-ui-svgrepo-com.svg" alt="Editar tarefa" class="edit-task-button"></button>
-                        <button class="btn btn-light"><img src="img/delete-2-svgrepo-com.svg" alt="Excluir tarefa" class="delete-task-button"></button>
-                        <div>
-                            <img src="img/sort-descending-svgrepo-com.svg" alt="Prioridade" class="priority-icon">
-                            <span class="priority-text">Alta</span>
-                        </div>
-                        <div>
-                            <img src="img/clock-two-svgrepo-com.svg" alt="Data de entrega" class="due-date-icon">
-                            <span class="due-date-text">12/12/2023</span>
-                        </div>
-                        <button class="btn btn-light"><img src="img/dropdown-arrow-svgrepo-com.svg" alt="Expandir"></button>
-                    </div>
-                </div>
-                <!-- As tarefas serão adicionadas aqui -->
+            <ul id="task-list">
+                <!-- Tarefas serão adicionadas aqui dinamicamente -->            
             </ul>
         </section>
     </main>
