@@ -5,11 +5,12 @@ class Task {
         baixa: 'Baixa'
     };
 
-    constructor(id, title, description, date, priority, notification) {
+    constructor(id, title, description, comment, date, priority, notification) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.date = date;
+        this.comment = comment;
+        this.date = new Date(date);
         this.createdAt = new Date();
         this.priority = priority;
         this.notification = notification;
@@ -22,7 +23,6 @@ class Task {
     }
 }
 
-
 const tasks = [];
 
 const taskList = document.getElementById('task-list');
@@ -32,10 +32,10 @@ const orderBySelector = document.getElementById('order-select');
 const test = true;
 if (test) {
     console.log('Test mode is enabled');
-    tasks.push(new Task(1, 'Tarefa 1', 'Descrição da tarefa 1', '2025-10-04', Task.PRIORITY.alta, true));
-    tasks.push(new Task(2, 'Tarefa 2', 'Descrição da tarefa 2', '2025-10-03', Task.PRIORITY.media, false));
-    tasks.push(new Task(3, 'Tarefa 3', 'Descrição da tarefa 3', '2025-10-02', Task.PRIORITY.baixa, true));
-    tasks.push(new Task(4, 'Tarefa 4', 'Descrição da tarefa 4', '2025-10-01', Task.PRIORITY.alta, false));
+    tasks.push(new Task(1, 'Tarefa 1', 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), '2025-10-04', Task.PRIORITY.alta, true));
+    tasks.push(new Task(2, 'Tarefa 2', 'Descrição da tarefa 2', 'Comentário da tarefa 2', '2025-10-03', Task.PRIORITY.media, false));
+    tasks.push(new Task(3, 'Tarefa 3', 'Descrição da tarefa 3', 'Comentário da tarefa 3', '2025-10-02', Task.PRIORITY.baixa, true));
+    tasks.push(new Task(4, 'Tarefa 4', 'Descrição da tarefa 4', 'Comentário da tarefa 4', '2025-10-01', Task.PRIORITY.alta, false));
 }
 
 function renderTaskForm() {
@@ -52,6 +52,10 @@ function renderTaskForm() {
                 <div class="mb-3">
                     <label for="task-description" class="form-label">Descrição</label>
                     <textarea class="form-control" id="task-description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="task-description" class="form-label">Comentário</label>
+                    <textarea class="form-control" id="task-comment" rows="1"></textarea>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -115,27 +119,40 @@ function renderTasks() {
     }
     for (let index = 0; index < tasks.length; index++) {
         const taskItem = document.createElement('li');
+        const task = tasks[index];
         taskItem.innerHTML = `
-            <div id="${tasks[index].id}" class="task-item">
+            <div id="task-${task.id}" class="task-item">
                 <div>
                     <div class="task-header">
-                        <h3>${tasks[index].title}</h3>
-                        <img src="img/notification-${tasks[index].notification ? 'on' : 'off'}.svg" alt="Notificação" class="notification-icon">
+                        <h3>${task.title}</h3>
+                        <img src="img/notification-${task.notification ? 'on' : 'off'}.svg" alt="Notificação" class="notification-icon">
                     </div>
-                    <p>${tasks[index].description}</p>
+                    <div class="task-text">
+                        <p>${task.description}</p>
+                    </div>
+                </div>
+                <div class="task-expand">
+                    <hr>
+                    <span>Criada em: </span>
+                    <span class="task-created-date">${task.createdAt.toLocaleDateString('pt-BR')} às ${task.createdAt.toTimeString().split(' ')[0]}</span>
+                    <hr>
+                    <p>Comentário: </p>
+                    <div class="task-text">
+                        <span>${task.comment}</span>
+                    </div>
                 </div>
                 <div class="task-footer">
                     <button class="btn btn-light"><img src="img/edit-ui-svgrepo-com.svg" alt="Editar tarefa" class="edit-task-button"></button>
                     <button class="btn btn-light"><img src="img/delete-2-svgrepo-com.svg" alt="Excluir tarefa" class="delete-task-button"></button>
                     <div>
                         <img src="img/sort-descending-svgrepo-com.svg" alt="Prioridade" class="priority-icon">
-                        <span class="priority-text">${tasks[index].priority}</span>
+                        <span class="priority-text">${task.priority}</span>
                     </div>
                     <div>
                         <img src="img/clock-two-svgrepo-com.svg" alt="Data de entrega" class="due-date-icon">
-                        <span class="due-date-text">${tasks[index].date}</span>
+                        <span class="due-date-text">${task.date.toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <button class="btn btn-light"><img src="img/dropdown-arrow-svgrepo-com.svg" alt="Expandir" class="expand-task-button"></button>
+                    <button class="btn btn-light"><img src="img/dropdown-arrow.png" alt="Expandir" class="toggle-expand-task-button"></button>
                 </div>
             </div>
         `;
@@ -148,9 +165,9 @@ function sortTasks() {
     if (orderBy === 'prioridade') {
         tasks.sort(Task.comparePriorities);
     } else if (orderBy === 'dt-tarefa') {
-        tasks.sort((a, b) => new Date(a.date) - new Date(b.date));
+        tasks.sort((a, b) => a.date - b.date);
     } else if (orderBy === 'dt-criacao') {
-        tasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        tasks.sort((a, b) => a.createdAt - b.createdAt);
     } else if (orderBy === 'alfabetica') {
         tasks.sort((a, b) => a.title.localeCompare(b.title));
     }
@@ -172,18 +189,16 @@ function addTask() {
     const taskId = gerarIdTarefa();
     const title = document.getElementById('task-title').value;
     const description = document.getElementById('task-description').value;
+    const comment = document.getElementById('task-comment').value;
+    const taskComment = comment ? comment : 'Sem comentários';
     const date = document.getElementById('task-date').value;
     const priority = document.getElementById('task-priority').value;
     const notification = document.getElementById('task-notification').checked;
 
-    if (title && date) {
-        const task = new Task(taskId, title, description, date, priority, notification);
-        tasks.push(task);
-        renderTasks();
-        closeTaskForm();
-    } else {
-        alert('Please fill in all fields.');
-    }
+    const task = new Task(taskId, title, description, taskComment, date, priority, notification);
+    tasks.push(task);
+    renderTasks();
+    closeTaskForm();
 }
 
 function editTask(taskId) {
@@ -216,6 +231,16 @@ function editTask(taskId) {
     }
 }
 
+function toggleExpandTask(taskItem) {
+    const taskExpand = taskItem.querySelector('.task-expand');
+    const isExpanded = taskExpand.classList.contains('expanded');
+    
+    taskExpand.classList.toggle('expanded');
+    
+    const expandButton = taskItem.querySelector('.toggle-expand-task-button');
+    expandButton.src = isExpanded ? 'img/dropdown-arrow.png' : 'img/dropup-arrow.png';
+}
+
 // Event listeners
 addTaskButton.addEventListener('click', newTask);
 orderBySelector.addEventListener('change', renderTasks);
@@ -238,5 +263,12 @@ document.getElementById("task-list").addEventListener("click", function(event) {
         const item = event.target.closest(".task-item");
         const taskId = parseInt(item.id);
         editTask(taskId);
+  }
+});
+
+document.getElementById("task-list").addEventListener("click", function(event) {
+    if (event.target.classList.contains("toggle-expand-task-button")) {
+        const taskItem = event.target.closest(".task-item");
+        toggleExpandTask(taskItem);
   }
 });
