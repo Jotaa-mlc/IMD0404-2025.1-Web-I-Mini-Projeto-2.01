@@ -1,11 +1,11 @@
 class Task {
-    static PRIORITY ={
+    static PRIORITY = {
         alta: 'Alta',
         media: 'Média',
         baixa: 'Baixa'
     };
 
-    constructor(id, title, description, comment, date, priority, notification) {
+    constructor(id, title, description, comment, date, priority, notification, completed = false) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -14,7 +14,7 @@ class Task {
         this.createdAt = new Date();
         this.priority = priority;
         this.notification = notification;
-        this.completed = false;
+        this.completed = completed;
     }
 
     static comparePriorities(a, b) {
@@ -32,10 +32,17 @@ const orderBySelector = document.getElementById('order-select');
 const test = true;
 if (test) {
     console.log('Test mode is enabled');
-    tasks.push(new Task(1, 'Tarefa 1', 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), '2025-10-04', Task.PRIORITY.alta, true));
-    tasks.push(new Task(2, 'Tarefa 2', 'Descrição da tarefa 2', 'Comentário da tarefa 2', '2025-10-03', Task.PRIORITY.media, false));
-    tasks.push(new Task(3, 'Tarefa 3', 'Descrição da tarefa 3', 'Comentário da tarefa 3', '2025-10-02', Task.PRIORITY.baixa, true));
-    tasks.push(new Task(4, 'Tarefa 4', 'Descrição da tarefa 4', 'Comentário da tarefa 4', '2025-10-01', Task.PRIORITY.alta, false));
+    tasks.push(new Task(1, 'Tarefa 1', 
+        'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 
+        'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 
+        '2025-05-29T10:00:00', Task.PRIORITY.alta, true, true));
+    tasks.push(new Task(2, 'Tarefa 2', 'Descrição da tarefa 2', 'Comentário da tarefa 2', '2025-05-19T10:00:00', Task.PRIORITY.media, false, true));
+    tasks.push(new Task(3, 'Tarefa 3', 'Descrição da tarefa 3', 'Comentário da tarefa 3', '2025-05-25T10:00:00', Task.PRIORITY.baixa, true));
+    tasks.push(new Task(4, 'Tarefa 4', 'Descrição da tarefa 4', 'Comentário da tarefa 4', '2025-05-17T10:00:00', Task.PRIORITY.alta, false));
+    tasks[2].createdAt = new Date('2025-05-09T12:00:00');
+    tasks[0].createdAt = new Date('2025-05-10T10:00:00');
+    tasks[3].createdAt = new Date('2025-05-11T13:00:00');
+    tasks[1].createdAt = new Date('2025-05-12T11:00:00');
 }
 
 function renderTaskForm() {
@@ -54,8 +61,8 @@ function renderTaskForm() {
                     <textarea class="form-control" id="task-description" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="task-description" class="form-label">Comentário</label>
-                    <textarea class="form-control" id="task-comment" rows="1"></textarea>
+                    <label for="task-comment" class="form-label">Comentário</label>
+                    <textarea class="form-control" id="task-comment" rows="2"></textarea>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -99,10 +106,6 @@ function closeTaskForm() {
     }
 }
 
-function gerarIdTarefa() {
-    return Math.floor(Math.random() * 9999) + 1;
-}
-
 function renderTasks() {
     console.log('Rendering tasks...');
     console.log('Tasks:', tasks);
@@ -112,7 +115,7 @@ function renderTasks() {
         const emptyListMessage = document.createElement('li');
         emptyListMessage.className = 'empty-list-message';
         emptyListMessage.innerHTML = `
-        <img src="img/empty-list.png" alt="Lista vazia" id="empty-list-icon">
+        <img src="../img/empty-list.png" alt="Lista vazia" id="empty-list-icon">
         <p id="empty-list-text">Nenhuma tarefa cadastrada</p>
         `;
         taskList.appendChild(emptyListMessage);
@@ -122,10 +125,10 @@ function renderTasks() {
         const task = tasks[index];
         taskItem.innerHTML = `
             <div id="task-${task.id}" class="task-item">
-                <div>
+                <div class="task-main">
                     <div class="task-header">
                         <h3>${task.title}</h3>
-                        <img src="img/notification-${task.notification ? 'on' : 'off'}.svg" alt="Notificação" class="notification-icon">
+                        <img src="../img/notification-${task.notification ? 'on' : 'off'}.svg" alt="Notificação" class="notification-icon">
                     </div>
                     <div class="task-text">
                         <p>${task.description}</p>
@@ -133,31 +136,60 @@ function renderTasks() {
                 </div>
                 <div class="task-expand">
                     <hr>
-                    <span>Criada em: </span>
+                    <span><strong>Criada em: </strong></span>
                     <span class="task-created-date">${task.createdAt.toLocaleDateString('pt-BR')} às ${task.createdAt.toTimeString().split(' ')[0]}</span>
                     <hr>
                     <p>Comentário: </p>
                     <div class="task-text">
-                        <span>${task.comment}</span>
+                        <p>${task.comment}</p>
                     </div>
                 </div>
                 <div class="task-footer">
-                    <button class="btn btn-light"><img src="img/edit-ui-svgrepo-com.svg" alt="Editar tarefa" class="edit-task-button"></button>
-                    <button class="btn btn-light"><img src="img/delete-2-svgrepo-com.svg" alt="Excluir tarefa" class="delete-task-button"></button>
+                    <button class="btn btn-light"><img src="../img/edit.svg" alt="Editar tarefa" class="edit-task-button"></button>
+                    <button class="btn btn-light"><img src="../img/trash.svg" alt="Excluir tarefa" class="delete-task-button"></button>
                     <div>
-                        <img src="img/sort-descending-svgrepo-com.svg" alt="Prioridade" class="priority-icon">
+                        <img src="../img/sort-descending.svg" alt="Prioridade" class="priority-icon">
                         <span class="priority-text">${task.priority}</span>
                     </div>
                     <div>
-                        <img src="img/clock-two-svgrepo-com.svg" alt="Data de entrega" class="due-date-icon">
+                        <img src="../img/clock.svg" alt="Data de entrega" class="due-date-icon">
                         <span class="due-date-text">${task.date.toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <button class="btn btn-light"><img src="img/dropdown-arrow.png" alt="Expandir" class="toggle-expand-task-button"></button>
+                    <button class="btn btn-light"><img src="../img/dropdown-arrow.png" alt="Expandir" class="toggle-expand-task-button"></button>
                 </div>
             </div>
         `;
         taskList.appendChild(taskItem);
     };
+}
+
+function renderTaskDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('id');
+    const task = tasks.find(task => task.id === parseInt(taskId));
+    if (task) {
+        document.getElementsByTagName('main')[0].classList.add('task-item');
+        document.getElementsByTagName('main')[0].id = `task-${task.id}`;
+
+        document.getElementById('task-title').innerText = task.title;
+        document.getElementById('notification-icon').src = `../img/notification-${task.notification ? 'on' : 'off'}.svg`;
+        document.getElementById('task-description').innerText = task.description;
+        document.getElementById('task-comment').innerText = task.comment;
+        document.getElementById('task-date').innerText = task.date.toLocaleDateString('pt-BR');
+        document.getElementById('task-created-date').innerText = task.createdAt.toLocaleDateString('pt-BR');
+        document.getElementById('task-priority').innerText = task.priority;
+
+        if (!task.completed) {
+            var toDay = new Date();
+            var late = task.date < toDay;
+            document.getElementById('task-status').innerText = late ? 'Atrasada' : 'Pendente';
+            document.getElementById('task-status').style.color = late ? 'red' : 'orange';
+        }
+        else {
+            document.getElementById('task-status').innerText = 'Concluída';
+            document.getElementById('task-status').style.color = 'green';
+        }
+    }
 }
 
 function sortTasks() {
@@ -201,6 +233,10 @@ function addTask() {
     closeTaskForm();
 }
 
+function gerarIdTarefa() {
+    return Math.floor(Math.random() * 9999) + 1;
+}
+
 function editTask(taskId) {
     const taskIndex = tasks.findIndex(task => task.id === taskId);
     if (taskIndex !== -1) {
@@ -211,7 +247,8 @@ function editTask(taskId) {
         
         document.getElementById('task-title').value = task.title;
         document.getElementById('task-description').value = task.description;
-        document.getElementById('task-date').value = task.date;
+        document.getElementById('task-date').value = task.date.toLocaleDateString('pt-BR').split('/').reverse().join('-');
+        document.getElementById('task-comment').value = task.comment;
         document.getElementById('task-priority').value = task.priority;
         document.getElementById('task-notification').checked = task.notification;
         
@@ -222,7 +259,7 @@ function editTask(taskId) {
             event.preventDefault();
             task.title = document.getElementById('task-title').value;
             task.description = document.getElementById('task-description').value;
-            task.date = document.getElementById('task-date').value;
+            task.date = new Date(document.getElementById('task-date').value);
             task.priority = document.getElementById('task-priority').value;
             task.notification = document.getElementById('task-notification').checked;
             renderTasks();
@@ -238,18 +275,18 @@ function toggleExpandTask(taskItem) {
     taskExpand.classList.toggle('expanded');
     
     const expandButton = taskItem.querySelector('.toggle-expand-task-button');
-    expandButton.src = isExpanded ? 'img/dropdown-arrow.png' : 'img/dropup-arrow.png';
+    expandButton.src = isExpanded ? '../img/dropdown-arrow.png' : '../img/dropup-arrow.png';
 }
 
 // Event listeners
 addTaskButton.addEventListener('click', newTask);
 orderBySelector.addEventListener('change', renderTasks);
-document.body.addEventListener('onload', renderTasks);
 
 document.getElementById("task-list").addEventListener("click", function(event) {
     if (event.target.classList.contains("delete-task-button")) {
-        const item = event.target.closest(".task-item");
-        const taskId = parseInt(item.id);
+        const taskItem = event.target.closest(".task-item");
+        const taskId = parseInt(taskItem.id.split('-')[1]);
+        console.log('Deleting task with ID:', taskId);
         const taskIndex = tasks.findIndex(task => task.id === taskId);
         if (taskIndex !== -1) {
             tasks.splice(taskIndex, 1);
@@ -260,8 +297,9 @@ document.getElementById("task-list").addEventListener("click", function(event) {
 
 document.getElementById("task-list").addEventListener("click", function(event) {
     if (event.target.classList.contains("edit-task-button")) {
-        const item = event.target.closest(".task-item");
-        const taskId = parseInt(item.id);
+        const taskItem = event.target.closest(".task-item");
+        const taskId = parseInt(taskItem.id.split('-')[1]);
+        console.log('Editing task with ID:', taskId);
         editTask(taskId);
   }
 });
@@ -271,4 +309,15 @@ document.getElementById("task-list").addEventListener("click", function(event) {
         const taskItem = event.target.closest(".task-item");
         toggleExpandTask(taskItem);
   }
+});
+
+document.addEventListener('click', function(event) {
+    const taskItem = event.target.closest('.task-item');
+    if (!taskItem) return;
+    if (event.target.closest('button')) return;
+
+    const taskId = parseInt(taskItem.id.split('-')[1]);
+    console.log("Redirecionando para:", `/pages/task.html?id=${taskId}`);
+    window.open(`/pages/task.html?id=${taskId}`, '_blank');
+    event.preventDefault();
 });

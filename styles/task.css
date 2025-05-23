@@ -1,0 +1,30 @@
+header .btn {
+    position:  absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 10px;
+    border: none;
+}
+
+main {
+    width: 70%;
+    height: fit-content;
+}
+
+#task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#task-header img {
+    width: 30px;
+    height: auto;
+
+}
+
+.task-text {
+    max-height: 350px;
+}
