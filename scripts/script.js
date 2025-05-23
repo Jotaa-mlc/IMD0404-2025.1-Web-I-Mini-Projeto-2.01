@@ -23,22 +23,21 @@ class Task {
     }
 }
 
-const tasks = [];
-
 const taskList = document.getElementById('task-list');
 const addTaskButton = document.getElementById('add-task-button');
 const orderBySelector = document.getElementById('order-select');
 
+const tasks = [];
 const test = true;
 if (test) {
     console.log('Test mode is enabled');
-    tasks.push(new Task(1, 'Tarefa 1', 
+    tasks.push(new Task('1', 'Tarefa 1', 
         'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 
         'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Praesentium rerum a debitis possimus. Optio dicta ullam voluptatibus neque, eaque rerum vel dolore fuga quaerat sequi delectus cumque nobis iure cupiditate!'.repeat(8), 
         '2025-05-29T10:00:00', Task.PRIORITY.alta, true, true));
-    tasks.push(new Task(2, 'Tarefa 2', 'Descrição da tarefa 2', 'Comentário da tarefa 2', '2025-05-19T10:00:00', Task.PRIORITY.media, false, true));
-    tasks.push(new Task(3, 'Tarefa 3', 'Descrição da tarefa 3', 'Comentário da tarefa 3', '2025-05-25T10:00:00', Task.PRIORITY.baixa, true));
-    tasks.push(new Task(4, 'Tarefa 4', 'Descrição da tarefa 4', 'Comentário da tarefa 4', '2025-05-17T10:00:00', Task.PRIORITY.alta, false));
+    tasks.push(new Task('2', 'Tarefa 2', 'Descrição da tarefa 2', 'Comentário da tarefa 2', '2025-05-19T10:00:00', Task.PRIORITY.media, false, true));
+    tasks.push(new Task('3', 'Tarefa 3', 'Descrição da tarefa 3', 'Comentário da tarefa 3', '2025-05-25T10:00:00', Task.PRIORITY.baixa, true));
+    tasks.push(new Task('4', 'Tarefa 4', 'Descrição da tarefa 4', 'Comentário da tarefa 4', '2025-05-17T10:00:00', Task.PRIORITY.alta, false));
     tasks[2].createdAt = new Date('2025-05-09T12:00:00');
     tasks[0].createdAt = new Date('2025-05-10T10:00:00');
     tasks[3].createdAt = new Date('2025-05-11T13:00:00');
@@ -161,35 +160,7 @@ function renderTasks() {
         `;
         taskList.appendChild(taskItem);
     };
-}
-
-function renderTaskDetails() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const taskId = urlParams.get('id');
-    const task = tasks.find(task => task.id === parseInt(taskId));
-    if (task) {
-        document.getElementsByTagName('main')[0].classList.add('task-item');
-        document.getElementsByTagName('main')[0].id = `task-${task.id}`;
-
-        document.getElementById('task-title').innerText = task.title;
-        document.getElementById('notification-icon').src = `../img/notification-${task.notification ? 'on' : 'off'}.svg`;
-        document.getElementById('task-description').innerText = task.description;
-        document.getElementById('task-comment').innerText = task.comment;
-        document.getElementById('task-date').innerText = task.date.toLocaleDateString('pt-BR');
-        document.getElementById('task-created-date').innerText = task.createdAt.toLocaleDateString('pt-BR');
-        document.getElementById('task-priority').innerText = task.priority;
-
-        if (!task.completed) {
-            var toDay = new Date();
-            var late = task.date < toDay;
-            document.getElementById('task-status').innerText = late ? 'Atrasada' : 'Pendente';
-            document.getElementById('task-status').style.color = late ? 'red' : 'orange';
-        }
-        else {
-            document.getElementById('task-status').innerText = 'Concluída';
-            document.getElementById('task-status').style.color = 'green';
-        }
-    }
+    localStorage.setItem('taskListJSON', JSON.stringify(tasks));
 }
 
 function sortTasks() {
@@ -234,7 +205,7 @@ function addTask() {
 }
 
 function gerarIdTarefa() {
-    return Math.floor(Math.random() * 9999) + 1;
+    return (Math.floor(Math.random() * 9999) + 1).toString();
 }
 
 function editTask(taskId) {
@@ -285,7 +256,7 @@ orderBySelector.addEventListener('change', renderTasks);
 document.getElementById("task-list").addEventListener("click", function(event) {
     if (event.target.classList.contains("delete-task-button")) {
         const taskItem = event.target.closest(".task-item");
-        const taskId = parseInt(taskItem.id.split('-')[1]);
+        const taskId = taskItem.id.split('-')[1];
         console.log('Deleting task with ID:', taskId);
         const taskIndex = tasks.findIndex(task => task.id === taskId);
         if (taskIndex !== -1) {
@@ -298,7 +269,7 @@ document.getElementById("task-list").addEventListener("click", function(event) {
 document.getElementById("task-list").addEventListener("click", function(event) {
     if (event.target.classList.contains("edit-task-button")) {
         const taskItem = event.target.closest(".task-item");
-        const taskId = parseInt(taskItem.id.split('-')[1]);
+        const taskId = taskItem.id.split('-')[1];
         console.log('Editing task with ID:', taskId);
         editTask(taskId);
   }
@@ -316,8 +287,8 @@ document.addEventListener('click', function(event) {
     if (!taskItem) return;
     if (event.target.closest('button')) return;
 
-    const taskId = parseInt(taskItem.id.split('-')[1]);
-    console.log("Redirecionando para:", `/pages/task.html?id=${taskId}`);
+    const taskId = taskItem.id.split('-')[1];
+    console.log("Redirecting to:", `/pages/task.html?id=${taskId}`);
     window.open(`/pages/task.html?id=${taskId}`, '_blank');
     event.preventDefault();
 });
